@@ -91,14 +91,18 @@ class _NewGroupChatViewState extends ConsumerState<NewGroupChatView> {
     return 'Member';
   }
 
+  /// First letter of the first and last name ("Alice Smith" -> "AS"), or of
+  /// the only name. Uses characters so an emoji stays whole.
   String _getMemberInitials(String displayName) {
-    final clean = displayName.trim();
-    if (clean.isEmpty) return '?';
-    final runes = clean.runes.toList();
-    if (runes.length > 1) {
-      return String.fromCharCodes(runes.take(2)).toUpperCase();
-    }
-    return String.fromCharCode(runes.first).toUpperCase();
+    final words = displayName
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((word) => word.isNotEmpty)
+        .toList();
+    if (words.isEmpty) return '?';
+    final first = words.first.characters.first;
+    if (words.length == 1) return first.toUpperCase();
+    return '$first${words.last.characters.first}'.toUpperCase();
   }
 
   Future<void> _handleCreate() async {
